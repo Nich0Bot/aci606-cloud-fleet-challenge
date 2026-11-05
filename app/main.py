@@ -284,7 +284,7 @@ def list_robots(db: Session = Depends(get_db)):
         for r in records:
             payload_data = r.payload if isinstance(r.payload, dict) else {}
             
-            # Formateamos r.received_at o r.ts para cumplir con TelemetryOut
+            # Usamos r.received_at o r.ts directamente como datetime
             date_val = r.received_at or r.ts
             
             item = {
