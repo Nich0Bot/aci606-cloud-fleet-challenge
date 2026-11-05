@@ -252,7 +252,7 @@ def list_robots(db: Session = Depends(get_db)):
         func.row_number()
         .over(
             partition_by=TelemetryRecord.robot_id,
-            order_by=(TelemetryRecord.timestamp.desc(), TelemetryRecord.id.desc()),
+            order_by=(TelemetryRecord.created_at.desc(), TelemetryRecord.id.desc()),
         )
         .label("rn")
     )
