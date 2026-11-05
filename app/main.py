@@ -235,9 +235,19 @@ def health() -> dict[str, Any]:
 @app.post("/telemetry", response_model=TelemetryAck)
 def ingest_telemetry(sample: TelemetryIn, db: Session = Depends(get_db)):
     data = sample.model_dump()
-    data.pop("timestamp", None)  # Quitamos timestamp para evitar conflicto con la BD
     
-    record = TelemetryRecord(**data)
+    # Extraemos los campos principales que son columnas directas en la tabla
+    robot_id = data.pop("robot_id")
+    fleet_id = data.pop("fleet_id", None)
+    data.pop("timestamp", None)  # Removemos el timestamp de la entrada
+    
+    # El resto del diccionario ('x', 'y', 'speed', etc.) se guarda dentro de 'payload'
+    record = TelemetryRecord(
+        robot_id=robot_id,
+        fleet_id=fleet_id,
+        payload=data
+    )
+    
     try:
         db.add(record)
         db.commit()
