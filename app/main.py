@@ -251,13 +251,13 @@ def ingest_telemetry(sample: TelemetryIn, db: Session = Depends(get_db)):
 def list_robots(db: Session = Depends(get_db)):
     """Última muestra de cada robot (una sola consulta con función ventana)."""
     rn = (
-        func.row_number()
-        .over(
-            partition_by=TelemetryRecord.robot_id,
-            order_by=(TelemetryRecord.created_at.desc(), TelemetryRecord.id.desc()),
-        )
-        .label("rn")
+    func.row_number()
+    .over(
+        partition_by=TelemetryRecord.robot_id,
+        order_by=(TelemetryRecord.ts.desc(), TelemetryRecord.id.desc()),
     )
+    .label("rn")
+)
     ranked = select(TelemetryRecord.id.label("id"), rn).subquery()
     stmt = (
         select(TelemetryRecord)
