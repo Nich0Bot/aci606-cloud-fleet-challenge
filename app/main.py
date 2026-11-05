@@ -235,7 +235,8 @@ def health() -> dict[str, Any]:
 @app.post("/telemetry", response_model=TelemetryAck)
 def ingest_telemetry(sample: TelemetryIn, db: Session = Depends(get_db)):
     data = sample.model_dump()
-    data.pop("timestamp", None)
+    data.pop("timestamp", None)  # Quitamos timestamp para evitar conflicto con la BD
+    
     record = TelemetryRecord(**data)
     try:
         db.add(record)
@@ -244,6 +245,7 @@ def ingest_telemetry(sample: TelemetryIn, db: Session = Depends(get_db)):
         db.rollback()
         logger.exception("Error al guardar telemetría")
         raise HTTPException(status_code=503, detail="Base de datos no disponible")
+        
     return TelemetryAck(id=record.id, robot_id=record.robot_id)
 
 
