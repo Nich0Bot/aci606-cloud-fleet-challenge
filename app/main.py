@@ -282,7 +282,6 @@ def list_robots(db: Session = Depends(get_db)):
         records = db.scalars(stmt).all()
         result = []
         for r in records:
-            # Extraemos la información del payload para construir la salida plana esperada por TelemetryOut
             payload_data = r.payload if isinstance(r.payload, dict) else {}
             item = {
                 "robot_id": r.robot_id,
