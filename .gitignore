@@ -1,0 +1,23 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.env
+
+# Models and generated data
+models/
+*.joblib
+*.keras
+*.h5
+data/*.csv
+!data/.gitkeep
+
+# Local database
+*.db
+*.sqlite
+*.sqlite3
+
+# OS / editor
+.DS_Store
+.vscode/
