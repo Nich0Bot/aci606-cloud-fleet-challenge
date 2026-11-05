@@ -283,15 +283,24 @@ def list_robots(db: Session = Depends(get_db)):
         result = []
         for r in records:
             payload_data = r.payload if isinstance(r.payload, dict) else {}
+            
+            # Construimos el objeto con valores por defecto para evitar ValidationErrors
             item = {
                 "robot_id": r.robot_id,
-                "fleet_id": r.fleet_id,
+                "fleet_id": r.fleet_id or "F1",
                 "timestamp": r.ts.timestamp() if r.ts else 0.0,
-                **payload_data
+                "x": float(payload_data.get("x", 0.0)),
+                "y": float(payload_data.get("y", 0.0)),
+                "speed": float(payload_data.get("speed", 0.0)),
+                "battery": float(payload_data.get("battery", 100.0)),
+                "motor_temp": float(payload_data.get("motor_temp", 0.0)),
+                "vibration": float(payload_data.get("vibration", 0.0)),
+                "motor_current": float(payload_data.get("motor_current", 0.0)),
+                "obstacle_distance": float(payload_data.get("obstacle_distance", 0.0)),
             }
             result.append(item)
         return result
-    except SQLAlchemyError:
+    except Exception:
         logger.exception("Error al consultar /robots")
         raise HTTPException(status_code=503, detail="Base de datos no disponible")
 
