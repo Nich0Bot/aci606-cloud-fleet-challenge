@@ -279,7 +279,19 @@ def list_robots(db: Session = Depends(get_db)):
         .order_by(TelemetryRecord.robot_id)
     )
     try:
-        return db.scalars(stmt).all()
+        records = db.scalars(stmt).all()
+        result = []
+        for r in records:
+            # Extraemos la información del payload para construir la salida plana esperada por TelemetryOut
+            payload_data = r.payload if isinstance(r.payload, dict) else {}
+            item = {
+                "robot_id": r.robot_id,
+                "fleet_id": r.fleet_id,
+                "timestamp": r.ts.timestamp() if r.ts else 0.0,
+                **payload_data
+            }
+            result.append(item)
+        return result
     except SQLAlchemyError:
         logger.exception("Error al consultar /robots")
         raise HTTPException(status_code=503, detail="Base de datos no disponible")
