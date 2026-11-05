@@ -234,7 +234,9 @@ def health() -> dict[str, Any]:
 
 @app.post("/telemetry", response_model=TelemetryAck)
 def ingest_telemetry(sample: TelemetryIn, db: Session = Depends(get_db)):
-    record = TelemetryRecord(**sample.model_dump())
+    data = sample.model_dump()
+    data.pop("timestamp", None)
+    record = TelemetryRecord(**data)
     try:
         db.add(record)
         db.commit()
