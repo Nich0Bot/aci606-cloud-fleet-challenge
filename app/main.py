@@ -284,11 +284,14 @@ def list_robots(db: Session = Depends(get_db)):
         for r in records:
             payload_data = r.payload if isinstance(r.payload, dict) else {}
             
-            # Construimos el objeto con valores por defecto para evitar ValidationErrors
+            # Formateamos r.received_at o r.ts para cumplir con TelemetryOut
+            date_val = r.received_at or r.ts
+            
             item = {
                 "robot_id": r.robot_id,
                 "fleet_id": r.fleet_id or "F1",
-                "timestamp": r.ts.timestamp() if r.ts else 0.0,
+                "received_at": date_val,
+                "timestamp": date_val.timestamp() if date_val else 0.0,
                 "x": float(payload_data.get("x", 0.0)),
                 "y": float(payload_data.get("y", 0.0)),
                 "speed": float(payload_data.get("speed", 0.0)),
