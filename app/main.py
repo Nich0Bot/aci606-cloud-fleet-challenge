@@ -307,6 +307,29 @@ def list_robots(db: Session = Depends(get_db)):
         logger.exception("Error al consultar /robots")
         raise HTTPException(status_code=503, detail="Base de datos no disponible")
 
+from sqlalchemy import delete
+
+@app.delete("/telemetry/{robot_id}")
+def delete_robot_telemetry(robot_id: str, db: Session = Depends(get_db)):
+    """
+    Elimina todos los registros de telemetría asociados a un robot específico.
+    """
+    try:
+        stmt = delete(TelemetryRecord).where(TelemetryRecord.robot_id == robot_id)
+        result = db.execute(stmt)
+        db.commit()
+
+        if result.rowcount == 0:
+            raise HTTPException(status_code=404, detail=f"No se encontraron registros para el robot '{robot_id}'")
+
+        return {
+            "message": f"Se eliminaron con éxito {result.rowcount} registros del robot '{robot_id}'",
+            "robot_id": robot_id,
+            "deleted_count": result.rowcount
+        }
+    except SQLAlchemyError:
+        db.rollback()
+        raise HTTPException(status_code=503, detail="Base de datos no disponible")
 
 @app.get("/robots/{robot_id}/history", response_model=list[TelemetryOut])
 def robot_history(robot_id: str, db: Session = Depends(get_db)):
